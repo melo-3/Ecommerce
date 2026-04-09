@@ -90,9 +90,11 @@ class SQLiteRepository:
         pedido_rows = self.sqlite.query_all(
             """
             SELECT p.*,
-                   c.nome AS cliente_nome,
+                   c.nome  AS cliente_nome,
                    c.email AS cliente_email,
-                   cu.codigo AS cupom_codigo,
+                   c.cpf   AS cliente_cpf,
+                   c.telefone AS cliente_telefone,
+                   cu.codigo        AS cupom_codigo,
                    cu.tipo_desconto AS cupom_tipo,
                    cu.valor_desconto AS cupom_valor
             FROM pedido p
@@ -129,6 +131,7 @@ class SQLiteRepository:
                     quantidade=int(item["quantidade"]),
                     preco_unitario_compra=float(item["preco_unitario_compra"]),
                     subtotal=float(item["subtotal"]),
+                    atributos_snapshot=item["atributos_snapshot"],  # adicionado
                 )
                 for item in item_rows
             ]
@@ -138,8 +141,10 @@ class SQLiteRepository:
                 pagamento = Pagamento(
                     tipo_pagamento=pagamento_row["tipo_pagamento"],
                     status_pagamento=pagamento_row["status_pagamento"],
-                    valor_pago=float(pagamento_row["valor_pago"]),
+                    valor=float(pagamento_row["valor"]),              # renomeado
                     parcelas=int(pagamento_row["parcelas"]),
+                    codigo_transacao=pagamento_row["codigo_transacao"],  # adicionado
+                    data_pagamento=pagamento_row["data_pagamento"],      # adicionado
                 )
 
             entrega = None
@@ -151,6 +156,7 @@ class SQLiteRepository:
                     endereco_snapshot=EnderecoSnapshot(
                         logradouro=entrega_row["logradouro_snapshot"],
                         numero=entrega_row["numero_snapshot"],
+                        complemento=entrega_row["complemento_snapshot"],  # adicionado
                         bairro=entrega_row["bairro_snapshot"],
                         cidade=entrega_row["cidade_snapshot"],
                         estado=entrega_row["estado_snapshot"],
@@ -176,6 +182,8 @@ class SQLiteRepository:
                     id_cliente=int(row["id_cliente"]),
                     nome=row["cliente_nome"],
                     email=row["cliente_email"],
+                    cpf=row["cliente_cpf"],          # adicionado
+                    telefone=row["cliente_telefone"], # adicionado
                 ),
                 cupom=cupom,
                 pagamento=pagamento,
