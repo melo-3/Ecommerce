@@ -15,6 +15,8 @@ class Cliente:
     id_cliente: int
     nome: str
     email: str
+    cpf: Optional[str] = None        # adicionado 
+    telefone: Optional[str] = None   # adicionado
 
 
 @dataclass(slots=True)
@@ -25,14 +27,17 @@ class EnderecoSnapshot:
     cidade: str
     estado: str
     cep: str
+    complemento: Optional[str] = None  # adicionado
 
 
 @dataclass(slots=True)
 class Pagamento:
     tipo_pagamento: str
     status_pagamento: str
-    valor_pago: float
+    valor: float                         # renomeado
     parcelas: int
+    codigo_transacao: Optional[str] = None  # adicionado
+    data_pagamento: Optional[str] = None    # adicionado
 
 
 @dataclass(slots=True)
@@ -55,6 +60,7 @@ class ItemPedido:
     quantidade: int
     preco_unitario_compra: float
     subtotal: float
+    atributos_snapshot: Optional[dict] = None  # adicionado
 
 
 @dataclass(slots=True)
