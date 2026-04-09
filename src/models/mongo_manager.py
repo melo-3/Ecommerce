@@ -1,8 +1,6 @@
-"""Gerenciamento de conexão e coleções MongoDB."""
-
 from __future__ import annotations
-
 from pymongo import MongoClient
+import mongomock
 
 from src.models.mongo_schemas import pedido_validator, produto_validator
 
@@ -28,8 +26,6 @@ class MongoManager:
                 return False, f"Falha no MongoDB: {exc}"
 
             try:
-                import mongomock
-
                 self.client = mongomock.MongoClient()
                 self.db = self.client[self.database_name]
                 self.using_mock = True
@@ -62,10 +58,6 @@ class MongoManager:
         if self.using_mock:
             self.db.create_collection("pedidos")
             self.db.create_collection("produtos")
-            return (
-                "Coleções criadas sem validator, pois a aplicação está usando mongomock. "
-                "No MongoDB real, os validators com $jsonSchema seriam aplicados."
-            )
 
         self.db.create_collection(
             "pedidos",
@@ -80,8 +72,10 @@ class MongoManager:
             validationAction="error",
         )
         return (
-            "Coleções Mongo criadas com $jsonSchema, "
-            "validationLevel='strict' e validationAction='error'."
+            "Coleções V3 criadas com $jsonSchema, "
+            "validationLevel='strict' e validationAction='error'. "
+            "Pedidos: um documento por pedido, com subdocumentos cliente, "
+            "itens (array), pagamento e entrega."
         )
 
     @property
