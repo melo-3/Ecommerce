@@ -3,7 +3,7 @@
 Fluxo:
 1. lê o SQLite por meio do repository;
 2. monta entidades de domínio;
-3. converte essas entidades para documentos Mongo simplificados.
+3. converte essas entidades para documentos Mongo (v3 — um doc por pedido).
 """
 
 from __future__ import annotations
@@ -21,13 +21,14 @@ class MigrationService:
     def migrate(self) -> dict[str, int]:
         self.mongo.ensure_connected()
 
-        produtos = [ProdutoMongoMapper.to_document(produto) for produto in self.repository.list_produtos()]
+        produtos = [
+            ProdutoMongoMapper.to_document(produto)
+            for produto in self.repository.list_produtos()
+        ]
 
         pedidos: list[dict] = []
-        total_pedidos_origem = 0
         for pedido in self.repository.list_pedidos():
-            total_pedidos_origem += 1
-            pedidos.extend(PedidoMongoMapper.to_documents(pedido))
+            pedidos.append(PedidoMongoMapper.to_document(pedido)) 
 
         self.mongo.produtos.delete_many({})
         self.mongo.pedidos.delete_many({})
@@ -40,5 +41,4 @@ class MigrationService:
         return {
             "produtos": len(produtos),
             "pedidos": len(pedidos),
-            "pedidos_origem": total_pedidos_origem,
         }
